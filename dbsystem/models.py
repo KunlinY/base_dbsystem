@@ -13,8 +13,8 @@ def validate_num(num):
 
 class School(models.Model):
     objects = models.Manager()
-    school_id = model.AutoField(primary_key=True, verbose_name='', db_index=True)
-    area_code = model.CharField(max_length=SHORT_CHAR, )
+    school_id = models.AutoField(primary_key=True, verbose_name='', db_index=True)
+    area_code = models.CharField(max_length=SHORT_CHAR, )
 
 
 class Class(models.Model):
