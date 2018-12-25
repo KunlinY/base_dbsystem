@@ -108,7 +108,6 @@ class People(models.Model):
     objects = models.Manager()
     entity_id = models.AutoField(primary_key=True, verbose_name='人员ID', db_index=True)
     name = models.CharField(max_length=SHORT_CHAR, verbose_name='人员名字')
-    entry_year = models.IntegerField(verbose_name='入职年份')
     born_year = models.IntegerField(verbose_name='出生年份')
     sex = models.CharField(max_length=CODE_CHAR, verbose_name='性别',
                            choices=(('male', '男'), ('female', '女'), ('other', '未知')))
@@ -129,6 +128,7 @@ class People(models.Model):
 class Teacher(People):
     position = models.CharField(max_length=SHORT_CHAR, verbose_name='老师职位')
     subject = models.ForeignKey(Subject, verbose_name='教授学科')
+    entry_year = models.IntegerField(verbose_name='入职年份')
 
     class Meta:
         verbose_name = '老师'
@@ -164,15 +164,37 @@ class Student(People):
         return self.name
 
 
+class Stuff(People):
+    entry_year=models.IntegerField(verbose_name='入职年份')
+
+    class Meta:
+        verbose_name = '职员'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+
 class Problem(models.Model):
     #（题目ID，出题人，出题对象，出题目的（思考/新接触/巩固/评测），录入者ID，平均准确率，平均做题用时，
-    # 做题总次数，总标记次数，总回看次数，经典错误答案，错误答案类别列表，答案，详细解答，步骤(每一步的具体内容)
-    # ，步骤标签列表（只有有步骤的时候才启用），标签列表，题目类别（判断/选择/填空/解答/证明），属于的书目，
-    # 属于的章节，属于的小节，属于页码）
+    # 经典错误答案，错误答案类别列表，答案，详细解答，步骤(每一步的具体内容)
+    # 步骤标签列表（只有有步骤的时候才启用），标签列表，题目类别（判断/选择/填空/解答/证明），属于的书目，
+    # 属于的章节)
     objects = models.Manager()
+    # 1. 目前problem的id是包含一些关系的（比如一个大解答题11的几个小题分别
+    # 命名为1101,1102之类的，采用autofield估计还得加上同属一个大题的域，
+    # 这些小题的顺序还必须考虑。。。有的会对解答有影响）
     entity_id = models.AutoField(primary_key=True, verbose_name='问题ID', db_index=True)
     name = models.CharField(max_length=SHORT_CHAR, verbose_name='问题名字')
-    point = models.IntegerField(verbose_name='分值')
+    # 2. 一个题目的标签是有序的
+    # 3. 题目的步骤也是有有序的，且一个题目可能有多个步骤，步骤之间有
+    # 存在各种并列、序列关系
+    # 4. 经典错误答案是错误本身，一道题目可能有一个或多个错误答案
+    # 错误答案类别列表就是错误答案所属的类别，而这个类别会对应一些
+    # 标标签
 
 
 class Exercise(models.Model):
@@ -180,7 +202,7 @@ class Exercise(models.Model):
     # 题目和考试的关系，不仅有分值还有序数关系，第1题和第20题
     # 在考试中不一样，在这点上作业也一样
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='作业ID', db_index=True)
+    entity_id = models.AutoField(primary_key=True, verbose_name='练习ID', db_index=True)
     name = models.CharField(max_length=SHORT_CHAR, verbose_name='练习名字')
     problems = models.ManyToManyField(Problem, verbose_name='题目列表')
     release_time = models.DateTimeField(verbose_name='布置时刻')
@@ -210,9 +232,11 @@ class ProblemCondition(models.Model):
     problem = models.ForeignKey(Problem, verbose_name='问题')
     result = models.CharField(max_length=LONG_CHAR, verbose_name='题目完成结果')
     # 题目完成情况应该是多次练习的一个汇总（一个学生可能反复做一道题）
-    # 所以需要加入回看（回看应该要记录回看的时刻）、和特殊标记（这个特殊标记由学生自己打）
+    # 所以需要加入回看（回看应该要记录回看的时刻）
+    # 和特殊标记（这个特殊标记由学生自己打）
     # 所以可能需要加入回看和特殊标记类
-    #condition应该不需要错误答案列表
+    # 除了错误答案还有这个学生是否出现了相应的经典错误答案
+    # 如果出现了需要加入错误答案类型
     judge = models.CharField(max_length=LONG_CHAR, verbose_name='错误答案列表')
     cost = models.IntegerField(verbose_name='完成所花时间')
 
@@ -233,8 +257,8 @@ class ExerciseCondition(models.Model):
     exercise = models.ForeignKey(Exercise, verbose_name='练习')
     student = models.ForeignKey(Student, verbose_name='学生')
     finish_time = models.DateTimeField(verbose_name='完成时间')
-    finish_degree = models.IntegerField(verbose_name='完成程度')
-    # result应该指向正确、错误或者经典错误答案
+    # 完成程度应该可以通过results反推，不用记录了
+    # finish_degree = models.IntegerField(verbose_name='完成程度')
     results = models.ManyToManyField(ProblemCondition, verbose_name='题目完成结果列表')
 
     class Meta:
@@ -255,7 +279,6 @@ class Book(models.Model):
     series = models.CharField(max_length=SHORT_CHAR, verbose_name='书目系列')
     subject = models.ForeignKey(Subject, verbose_name='科目')
 
-
     class Meta:
         verbose_name = '书目'
         verbose_name_plural = verbose_name
@@ -265,6 +288,7 @@ class Book(models.Model):
 
     def __repr__(self):
         return self.name + "@" + self.series
+
 
 class Chapter(models.Model):
     objects = models.Manager()
