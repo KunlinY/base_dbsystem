@@ -29,9 +29,11 @@ class Tag(models.Model):
     objects = models.Manager()
     entity_id = models.AutoField(primary_key=True, verbose_name='标签ID', db_index=True)
     name = models.CharField(max_length=SHORT_CHAR, verbose_name='标签名字')
-    category = models.CharField(max_length=CODE_CHAR, verbose_name='标签类型')
+    category = models.CharField(max_length=CODE_CHAR, verbose_name='标签类型', choice=(('T', '题型'), ('N', '能力'), ('Z', '知识'), ('C', '易错')))
     difficulty = models.IntegerField(verbose_name='标签难度')
     description = models.CharField(max_length=LONG_CHAR, verbose_name='标签描述')
+    book = models.ForeignKey(Book, verbose_name='书目')
+    chapter = models.ForeignKey(Chapter, verbose_name='章节')
     precursor = models.ManyToManyField("Tag", verbose_name='前序知识')
 
     class Meta:
@@ -47,7 +49,7 @@ class Tag(models.Model):
 
 class TagAbility(models.Model):
     objects = models.Manager()
-    student = models.ForeignKey('Student', verbose_name='学生')
+    student = models.ForeignKey(Student, verbose_name='学生')
     tag = models.ForeignKey(Tag, verbose_name='标签')
     degree = models.IntegerField(verbose_name='掌握程度')
 
@@ -245,3 +247,37 @@ class ExerciseCondition(models.Model):
     def __repr__(self):
         return self.student.name + '@%d' % self.exercise.entity_id
 
+
+class Book(models.Model):
+    objects = models.Manager()
+    entity_id = models.AutoField(primary_key=True, verbose_name='书目ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR, verbose_name='书目名称')
+    series = models.CharField(max_length=SHORT_CHAR, verbose_name='书目系列')
+    subject = models.ForeignKey(Subject, verbose_name='科目')
+
+
+    class Meta:
+        verbose_name = '书目'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name + "@" + self.series
+
+    def __repr__(self):
+        return self.name + "@" + self.series
+
+class Chapter(models.Model):
+    objects = models.Manager()
+    entity_id = models.AutoField(primary_key=True, verbose_name='章节ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR, verbose_name='章节名称')
+    book = models.ForeignKey(Book, verbose_name='书目')
+
+    class Meta:
+        verbose_name = '章节'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name + "@" + self.book.name + "@" + self.book.series
+
+    def __repr__(self):
+        return self.name + "@" + self.book.name + "@" + self.book.series
