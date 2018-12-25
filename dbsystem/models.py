@@ -174,6 +174,9 @@ class Problem(models.Model):
 
 
 class Exercise(models.Model):
+    # 关于每次不同分值的问题，还是应该把题目和考试的关系单独拉出来
+    # 题目和考试的关系，不仅有分值还有序数关系，第1题和第20题
+    # 在考试中不一样，在这点上作业也一样
     objects = models.Manager()
     entity_id = models.AutoField(primary_key=True, verbose_name='作业ID', db_index=True)
     name = models.CharField(max_length=SHORT_CHAR, verbose_name='练习名字')
@@ -204,6 +207,10 @@ class ProblemCondition(models.Model):
     student = models.ForeignKey(Student, verbose_name='学生')
     problem = models.ForeignKey(Problem, verbose_name='问题')
     result = models.CharField(max_length=LONG_CHAR, verbose_name='题目完成结果')
+    # 题目完成情况应该是多次练习的一个汇总（一个学生可能反复做一道题）
+    # 所以需要加入回看（回看应该要记录回看的时刻）、和特殊标记（这个特殊标记由学生自己打）
+    # 所以可能需要加入回看和特殊标记类
+    #condition应该不需要错误答案列表
     judge = models.CharField(max_length=LONG_CHAR, verbose_name='错误答案列表')
     cost = models.IntegerField(verbose_name='完成所花时间')
 
@@ -220,10 +227,12 @@ class ProblemCondition(models.Model):
 
 class ExerciseCondition(models.Model):
     objects = models.Manager()
+    # 如果是考试还需要要每道题的得分
     exercise = models.ForeignKey(Exercise, verbose_name='练习')
     student = models.ForeignKey(Student, verbose_name='学生')
     finish_time = models.DateTimeField(verbose_name='完成时间')
     finish_degree = models.IntegerField(verbose_name='完成程度')
+    # result应该指向正确、错误或者经典错误答案
     results = models.ManyToManyField(ProblemCondition, verbose_name='题目完成结果列表')
 
     class Meta:
