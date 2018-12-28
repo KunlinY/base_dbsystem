@@ -275,6 +275,9 @@ class TagAbility(models.Model):
 
 class CustomizedFolder(models.Model):
     objects = models.Manager()
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='自定义标签', db_index=True)
+    # 未确定，有可能老师也可以建立收藏夹
     student = models.ForeignKey(Student, verbose_name='学生',
             on_delete=models.CASCADE)
     name = models.CharField(max_length=SHORT_CHAR,
@@ -290,6 +293,24 @@ class CustomizedFolder(models.Model):
     def __repr__(self):
         return self.name + "@" + self.student.name
 
+
+class ClassicalErrorType(models.Model):
+    objects = models.Manager()
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='经典错误类型', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='名字')
+    #这里也需要一个标签对应的关系，标签带顺序
+
+    class Meta:
+        verbose_name = '经典错误类型'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
 
 
 class Problem(models.Model):
