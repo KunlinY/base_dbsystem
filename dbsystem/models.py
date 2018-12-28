@@ -60,6 +60,23 @@ class Chapter(models.Model):
         return self.name + "@" + self.book.name + "@" + self.book.series
 
 
+class Section(models.Model):
+    objects = models.Manager()
+    entity_id = models.AutoField(primary_key=True, verbose_name='小节ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR, verbose_name='小节名称')
+    chapter = models.ForeignKey(Chapter, verbose_name='小节名称', on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = '小节'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name + "@" + self.chapter.name + "@" + self.chapter.book.name + "@" + self.chapter.book.series
+
+    def __repr__(self):
+        return self.name + "@" + self.chapter.name + "@" + self.chapter.book.name + "@" + self.chapter.book.series
+
+
 class Tag(models.Model):
     objects = models.Manager()
     entity_id = models.AutoField(primary_key=True, verbose_name='标签ID', db_index=True)
@@ -67,8 +84,9 @@ class Tag(models.Model):
     category = models.CharField(max_length=CODE_CHAR, verbose_name='标签类型', choices=(('T', '题型'), ('N', '能力'), ('Z', '知识'), ('C', '易错')))
     difficulty = models.IntegerField(verbose_name='标签难度')
     description = models.CharField(max_length=LONG_CHAR, verbose_name='标签描述')
-    book = models.ForeignKey(Book, verbose_name='书目', on_delete=models.CASCADE)
-    chapter = models.ForeignKey(Chapter, verbose_name='章节', on_delete=models.CASCADE)
+    book = models.ManyToManyField(Book, verbose_name='书目')
+    chapter = models.ManyToManyField(Chapter, verbose_name='章节')
+    section = models.ManyToManyField(Section, verbose_name='小节')
     precursor = models.ManyToManyField("Tag", verbose_name='前序知识')
 
     class Meta:
@@ -131,6 +149,8 @@ class People(models.Model):
                            choices=(('male', '男'), ('female', '女'), ('other', '未知')))
     school = models.ForeignKey(School, verbose_name='所属学校', on_delete=models.CASCADE)
     classes = models.ManyToManyField(Class, verbose_name='所属班级')
+    email = models.CharField(max_length=LONG_CHAR, verbose_name='邮箱账号')
+    password = models.CharField(max_length=SHORT_CHAR, verbose_name='密码')
 
     class Meta:
         verbose_name = '人员'
@@ -200,7 +220,8 @@ class TagAbility(models.Model):
     objects = models.Manager()
     student = models.ForeignKey(Student, verbose_name='学生', on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, verbose_name='标签', on_delete=models.CASCADE)
-    degree = models.IntegerField(verbose_name='掌握程度')
+    skill_level = models.IntegerField(verbose_name='熟练程度')
+    accurate_level = models.IntegerField(verbose_name='准确程度')
 
     class Meta:
         verbose_name = '学生标签掌握程度'
@@ -245,10 +266,12 @@ class Exercise(models.Model):
     aim = models.CharField(max_length=CODE_CHAR, verbose_name='布置目的',
                            choices=(('1', '思考'), ('2', '新接触'), ('3', '巩固'), ('4', '评测')))
     release_people = models.ForeignKey(Teacher, verbose_name='布置人', on_delete=models.CASCADE, related_name='+')
-    release_target = models.ManyToManyField(Teacher, verbose_name='布置对象')
+    release_target = models.ManyToManyField(Teacher,
+            verbose_name='布置对象')
     subject = models.ForeignKey(Subject, verbose_name='学科', on_delete=models.CASCADE)
-    types = models.CharField(max_length=CODE_CHAR, verbose_name='练习类型',
-                             choices=(('1', '作业'), ('2', '考试'), ('3', '其他')))
+    types = models.CharField(max_length=CODE_CHAR, 
+            verbose_name='练习类型',
+            choices=(('1', '作业'), ('2', '考试'), ('3', '其他')))
 
     class Meta:
         verbose_name = '练习'
@@ -263,16 +286,20 @@ class Exercise(models.Model):
 
 class ProblemCondition(models.Model):
     objects = models.Manager()
-    student = models.ForeignKey(Student, verbose_name='学生', on_delete=models.CASCADE)
-    problem = models.ForeignKey(Problem, verbose_name='问题', on_delete=models.CASCADE)
-    result = models.CharField(max_length=LONG_CHAR, verbose_name='题目完成结果')
+    student = models.ForeignKey(Student, verbose_name='学生', 
+            on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, verbose_name='问题',
+            on_delete=models.CASCADE)
+    result = models.CharField(max_length=LONG_CHAR, 
+            verbose_name='题目完成结果')
     # 题目完成情况应该是多次练习的一个汇总（一个学生可能反复做一道题）
     # 所以需要加入回看（回看应该要记录回看的时刻）
     # 和特殊标记（这个特殊标记由学生自己打）
     # 所以可能需要加入回看和特殊标记类
     # 除了错误答案还有这个学生是否出现了相应的经典错误答案
     # 如果出现了需要加入错误答案类型
-    judge = models.CharField(max_length=LONG_CHAR, verbose_name='错误答案列表')
+    judge = models.CharField(max_length=LONG_CHAR, 
+            verbose_name='错误答案列表')
     cost = models.IntegerField(verbose_name='完成所花时间')
 
     class Meta:
@@ -289,12 +316,15 @@ class ProblemCondition(models.Model):
 class ExerciseCondition(models.Model):
     objects = models.Manager()
     # 如果是考试还需要要每道题的得分
-    exercise = models.ForeignKey(Exercise, verbose_name='练习', on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, verbose_name='学生', on_delete=models.CASCADE)
+    exercise = models.ForeignKey(Exercise, verbose_name='练习', 
+            on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, verbose_name='学生', 
+            on_delete=models.CASCADE)
     finish_time = models.DateTimeField(verbose_name='完成时间')
     # 完成程度应该可以通过results反推，不用记录了
     # finish_degree = models.IntegerField(verbose_name='完成程度')
-    results = models.ManyToManyField(ProblemCondition, verbose_name='题目完成结果列表')
+    results = models.ManyToManyField(ProblemCondition,
+            verbose_name='题目完成结果列表')
 
     class Meta:
         verbose_name = '练习完成情况'
@@ -307,3 +337,20 @@ class ExerciseCondition(models.Model):
         return self.student.name + '@%d' % self.exercise.entity_id
 
 
+class ReviewRecord(models.Model):
+    objects = models.Manager()
+    problem = models.ForeignKey(Problem, verbose_name='问题', on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, verbose_name='学生', on_delete=models.CASCADE)
+    time = models.DateTimeField(verbose_name='回看时间')
+
+    class Meta:
+        verbose_name = '回看记录'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.student.name + '@%d' % self.problem.entity_id + "@" + self.time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def __repr__(self):
+        return self.student.name + '@%d' % self.problem.entity_id + "@" + self.time.strftime("%Y-%m-%d %H:%M:%S")
+
+    
