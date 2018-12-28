@@ -368,6 +368,7 @@ class ProblemCondition(models.Model):
     judge = models.CharField(max_length=LONG_CHAR, 
             verbose_name='错误答案列表')
     cost = models.IntegerField(verbose_name='完成所花时间')
+    points = models.FloatField(verbose_name='得到分数')
 
     class Meta:
         verbose_name = '题目完成情况'
@@ -382,16 +383,11 @@ class ProblemCondition(models.Model):
 
 class ExerciseCondition(models.Model):
     objects = models.Manager()
-    # 如果是考试还需要要每道题的得分
-    exercise = models.ForeignKey(Exercise, verbose_name='练习', 
-            on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, verbose_name='学生', 
-            on_delete=models.CASCADE)
+    exercise = models.ForeignKey(Exercise, verbose_name='练习', on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, verbose_name='学生', on_delete=models.CASCADE)
     finish_time = models.DateTimeField(verbose_name='完成时间')
-    # 完成程度应该可以通过results反推，不用记录了
-    # finish_degree = models.IntegerField(verbose_name='完成程度')
-    results = models.ManyToManyField(ProblemCondition,
-            verbose_name='题目完成结果列表')
+    results = models.ManyToManyField(ProblemCondition, verbose_name='题目完成结果列表')
+
 
     class Meta:
         verbose_name = '练习完成情况'
