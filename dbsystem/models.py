@@ -11,8 +11,10 @@ CODE_CHAR = 16
 
 class Subject(models.Model):
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='科目ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='科目名字')
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='科目ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='科目名字')
 
     class Meta:
         verbose_name = '科目'
@@ -27,10 +29,14 @@ class Subject(models.Model):
 
 class Book(models.Model):
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='书目ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='书目名称')
-    series = models.CharField(max_length=SHORT_CHAR, verbose_name='书目系列')
-    subject = models.ForeignKey(Subject, verbose_name='科目', on_delete=models.CASCADE)
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='书目ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='书目名称')
+    series = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='书目系列')
+    subject = models.ForeignKey(Subject, verbose_name='科目',
+            on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = '书目'
@@ -45,9 +51,12 @@ class Book(models.Model):
 
 class Chapter(models.Model):
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='章节ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='章节名称')
-    book = models.ForeignKey(Book, verbose_name='书目', on_delete=models.CASCADE)
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='章节ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='章节名称')
+    book = models.ForeignKey(Book, verbose_name='书目',
+            on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = '章节'
@@ -60,15 +69,41 @@ class Chapter(models.Model):
         return self.name + "@" + self.book.name + "@" + self.book.series
 
 
+class Section(models.Model):
+    objects = models.Manager()
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='小节ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='小节名称')
+    chapter = models.ForeignKey(Chapter, verbose_name='小节名称',
+            on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name = '小节'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name + "@" + self.chapter.name + "@" + self.chapter.book.name + "@" + self.chapter.book.series
+
+    def __repr__(self):
+        return self.name + "@" + self.chapter.name + "@" + self.chapter.book.name + "@" + self.chapter.book.series
+
+
 class Tag(models.Model):
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='标签ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='标签名字')
-    category = models.CharField(max_length=CODE_CHAR, verbose_name='标签类型', choices=(('T', '题型'), ('N', '能力'), ('Z', '知识'), ('C', '易错')))
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='标签ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='标签名字')
+    category = models.CharField(max_length=CODE_CHAR,
+            verbose_name='标签类型', choices=(('T', '题型'),
+                ('N', '能力'), ('Z', '知识'), ('C', '易错')))
     difficulty = models.IntegerField(verbose_name='标签难度')
-    description = models.CharField(max_length=LONG_CHAR, verbose_name='标签描述')
-    book = models.ForeignKey(Book, verbose_name='书目', on_delete=models.CASCADE)
-    chapter = models.ForeignKey(Chapter, verbose_name='章节', on_delete=models.CASCADE)
+    description = models.CharField(max_length=LONG_CHAR,
+            verbose_name='标签描述')
+    book = models.ManyToManyField(Book, verbose_name='书目')
+    chapter = models.ManyToManyField(Chapter, verbose_name='章节')
+    section = models.ManyToManyField(Section, verbose_name='小节')
     precursor = models.ManyToManyField("Tag", verbose_name='前序知识')
 
     class Meta:
@@ -84,14 +119,23 @@ class Tag(models.Model):
 
 class School(models.Model):
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='学校ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='学校名字')
-    area = models.CharField(max_length=CODE_CHAR, verbose_name='所属地区代码')
-    administrator = models.CharField(max_length=SHORT_CHAR, verbose_name='所属单位')
-    property = models.CharField(max_length=CODE_CHAR, verbose_name='学校性质', choices=(('public', ''), ('private', ''), ('other', '')))
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='学校ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='学校名字')
+    area = models.CharField(max_length=CODE_CHAR,
+            verbose_name='所属地区代码')
+    administrator = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='所属单位')
+    property = models.CharField(max_length=CODE_CHAR,
+            verbose_name='学校性质', choices=(('public', ''),
+                ('private', ''), ('other', '')))
     rank = models.IntegerField(verbose_name='学校区县排名')
-    description = models.CharField(max_length=LONG_CHAR, verbose_name='学校描述')
-    level = models.CharField(max_length=CODE_CHAR, verbose_name='学校等级', choices=(('provincial', ''), ('municipal', ''), ('county', ''), ('other', '')))
+    description = models.CharField(max_length=LONG_CHAR,
+            verbose_name='学校描述')
+    level = models.CharField(max_length=CODE_CHAR,
+            verbose_name='学校等级', choices=(('provincial', ''),
+                ('municipal', ''), ('county', ''), ('other', '')))
 
     class Meta:
         verbose_name = '学校'
@@ -106,8 +150,10 @@ class School(models.Model):
 
 class Class(models.Model):
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='班级ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='班级名字')
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='班级ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='班级名字')
     entry_year = models.IntegerField(verbose_name='入学年份')
     rank = models.IntegerField(verbose_name='班级排名')
 
@@ -124,13 +170,22 @@ class Class(models.Model):
 
 class People(models.Model):
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='人员ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='人员名字')
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='人员ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='人员名字')
     born_year = models.IntegerField(verbose_name='出生年份')
-    sex = models.CharField(max_length=CODE_CHAR, verbose_name='性别',
-                           choices=(('male', '男'), ('female', '女'), ('other', '未知')))
-    school = models.ForeignKey(School, verbose_name='所属学校', on_delete=models.CASCADE)
+    sex = models.CharField(max_length=CODE_CHAR,
+            verbose_name='性别',
+            choices=(('male', '男'), ('female', '女'),
+                ('other', '未知')))
+    school = models.ForeignKey(School, verbose_name='所属学校',
+            on_delete=models.CASCADE)
     classes = models.ManyToManyField(Class, verbose_name='所属班级')
+    email = models.CharField(max_length=LONG_CHAR,
+            verbose_name='邮箱账号')
+    password = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='密码')
 
     class Meta:
         verbose_name = '人员'
@@ -144,8 +199,10 @@ class People(models.Model):
 
 
 class Teacher(People):
-    position = models.CharField(max_length=SHORT_CHAR, verbose_name='老师职位')
-    subject = models.ForeignKey(Subject, verbose_name='教授学科', on_delete=models.CASCADE)
+    position = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='老师职位')
+    subject = models.ForeignKey(Subject, verbose_name='教授学科',
+            on_delete=models.CASCADE)
     entry_year = models.IntegerField(verbose_name='入职年份')
 
     class Meta:
@@ -198,9 +255,12 @@ class Stuff(People):
 
 class TagAbility(models.Model):
     objects = models.Manager()
-    student = models.ForeignKey(Student, verbose_name='学生', on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, verbose_name='标签', on_delete=models.CASCADE)
-    degree = models.IntegerField(verbose_name='掌握程度')
+    student = models.ForeignKey(Student, verbose_name='学生',
+            on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, verbose_name='标签',
+            on_delete=models.CASCADE)
+    skill_level = models.IntegerField(verbose_name='熟练程度')
+    accurate_level = models.IntegerField(verbose_name='准确程度')
 
     class Meta:
         verbose_name = '学生标签掌握程度'
@@ -213,6 +273,46 @@ class TagAbility(models.Model):
         return self.student.name + '@' + self.tag.name
 
 
+class CustomizedFolder(models.Model):
+    objects = models.Manager()
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='自定义标签', db_index=True)
+    # 未确定，有可能老师也可以建立收藏夹
+    student = models.ForeignKey(Student, verbose_name='学生',
+            on_delete=models.CASCADE)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='名字')
+
+    class Meta:
+        verbose_name = '自定义标签'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name + "@" + self.student.name
+
+    def __repr__(self):
+        return self.name + "@" + self.student.name
+
+
+class ClassicalErrorType(models.Model):
+    objects = models.Manager()
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='经典错误类型', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='名字')
+    #这里也需要一个标签对应的关系，标签带顺序
+
+    class Meta:
+        verbose_name = '经典错误类型'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+
 class Problem(models.Model):
     #（题目ID，出题人，出题对象，出题目的（思考/新接触/巩固/评测），录入者ID，平均准确率，平均做题用时，
     # 经典错误答案，错误答案类别列表，答案，详细解答，步骤(每一步的具体内容)
@@ -222,8 +322,10 @@ class Problem(models.Model):
     # 1. 目前problem的id是包含一些关系的（比如一个大解答题11的几个小题分别
     # 命名为1101,1102之类的，采用autofield估计还得加上同属一个大题的域，
     # 这些小题的顺序还必须考虑。。。有的会对解答有影响）
-    entity_id = models.AutoField(primary_key=True, verbose_name='问题ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='问题名字')
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='问题ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='问题名字')
     # 2. 一个题目的标签是有序的
     # 3. 题目的步骤也是有有序的，且一个题目可能有多个步骤，步骤之间有
     # 存在各种并列、序列关系
@@ -237,18 +339,28 @@ class Exercise(models.Model):
     # 题目和考试的关系，不仅有分值还有序数关系，第1题和第20题
     # 在考试中不一样，在这点上作业也一样
     objects = models.Manager()
-    entity_id = models.AutoField(primary_key=True, verbose_name='练习ID', db_index=True)
-    name = models.CharField(max_length=SHORT_CHAR, verbose_name='练习名字')
-    problems = models.ManyToManyField(Problem, verbose_name='题目列表')
+    entity_id = models.AutoField(primary_key=True,
+            verbose_name='练习ID', db_index=True)
+    name = models.CharField(max_length=SHORT_CHAR,
+            verbose_name='练习名字')
+    problems = models.ManyToManyField(Problem,
+            verbose_name='题目列表')
     release_time = models.DateTimeField(verbose_name='布置时刻')
     length = models.IntegerField(verbose_name='布置时长')
-    aim = models.CharField(max_length=CODE_CHAR, verbose_name='布置目的',
-                           choices=(('1', '思考'), ('2', '新接触'), ('3', '巩固'), ('4', '评测')))
-    release_people = models.ForeignKey(Teacher, verbose_name='布置人', on_delete=models.CASCADE, related_name='+')
-    release_target = models.ManyToManyField(Teacher, verbose_name='布置对象')
-    subject = models.ForeignKey(Subject, verbose_name='学科', on_delete=models.CASCADE)
-    types = models.CharField(max_length=CODE_CHAR, verbose_name='练习类型',
-                             choices=(('1', '作业'), ('2', '考试'), ('3', '其他')))
+    aim = models.CharField(max_length=CODE_CHAR,
+            verbose_name='布置目的',
+            choices=(('1', '思考'), ('2', '新接触'),
+                ('3', '巩固'), ('4', '评测')))
+    release_people = models.ForeignKey(Teacher,
+            verbose_name='布置人', on_delete=models.CASCADE,
+            related_name='+')
+    release_target = models.ManyToManyField(Teacher,
+            verbose_name='布置对象')
+    subject = models.ForeignKey(Subject, verbose_name='学科',
+            on_delete=models.CASCADE)
+    types = models.CharField(max_length=CODE_CHAR, 
+            verbose_name='练习类型',
+            choices=(('1', '作业'), ('2', '考试'), ('3', '其他')))
 
     class Meta:
         verbose_name = '练习'
@@ -263,16 +375,19 @@ class Exercise(models.Model):
 
 class ProblemCondition(models.Model):
     objects = models.Manager()
-    student = models.ForeignKey(Student, verbose_name='学生', on_delete=models.CASCADE)
-    problem = models.ForeignKey(Problem, verbose_name='问题', on_delete=models.CASCADE)
-    result = models.CharField(max_length=LONG_CHAR, verbose_name='题目完成结果')
-    # 题目完成情况应该是多次练习的一个汇总（一个学生可能反复做一道题）
-    # 所以需要加入回看（回看应该要记录回看的时刻）
-    # 和特殊标记（这个特殊标记由学生自己打）
-    # 所以可能需要加入回看和特殊标记类
+    student = models.ForeignKey(Student, verbose_name='学生', 
+            on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, verbose_name='问题',
+            on_delete=models.CASCADE)
+    folder = models.ForeignKey(CustomizedFolder,
+            verbose_name='自定义标签', null=True, blank=True,
+            on_delete=models.SET_NULL)
+    result = models.CharField(max_length=LONG_CHAR, 
+            verbose_name='题目完成结果')
     # 除了错误答案还有这个学生是否出现了相应的经典错误答案
     # 如果出现了需要加入错误答案类型
-    judge = models.CharField(max_length=LONG_CHAR, verbose_name='错误答案列表')
+    judge = models.CharField(max_length=LONG_CHAR, 
+            verbose_name='错误答案列表')
     cost = models.IntegerField(verbose_name='完成所花时间')
     points = models.FloatField(verbose_name='得到分数')
 
@@ -294,6 +409,7 @@ class ExerciseCondition(models.Model):
     finish_time = models.DateTimeField(verbose_name='完成时间')
     results = models.ManyToManyField(ProblemCondition, verbose_name='题目完成结果列表')
 
+
     class Meta:
         verbose_name = '练习完成情况'
         verbose_name_plural = verbose_name
@@ -303,5 +419,24 @@ class ExerciseCondition(models.Model):
 
     def __repr__(self):
         return self.student.name + '@%d' % self.exercise.entity_id
+
+
+class ReviewRecord(models.Model):
+    objects = models.Manager()
+    problem = models.ForeignKey(Problem, verbose_name='问题',
+            on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, verbose_name='学生',
+            on_delete=models.CASCADE)
+    time = models.DateTimeField(verbose_name='回看时间')
+
+    class Meta:
+        verbose_name = '回看记录'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.student.name + '@%d' % self.problem.entity_id + "@" + self.time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def __repr__(self):
+        return self.student.name + '@%d' % self.problem.entity_id + "@" + self.time.strftime("%Y-%m-%d %H:%M:%S")
 
 

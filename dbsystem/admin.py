@@ -15,4 +15,8 @@ admin.site.register(ExerciseCondition)
 admin.site.register(Book)
 admin.site.register(Chapter)
 admin.site.register(Stuff)
+admin.site.register(Section)
+admin.site.register(ReviewRecord)
+admin.site.register(CustomizedFolder)
+admin.site.register(ClassicalErrorType)
 
