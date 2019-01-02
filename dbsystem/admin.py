@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import *
+from .models_mysql import *
 
 admin.site.register(Subject)
 admin.site.register(Tag)
