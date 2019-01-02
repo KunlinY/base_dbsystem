@@ -20,4 +20,5 @@ import dbsystem.views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^dbsystem/', dbsystem.views.index),
+    url(r'^Students2Problem', dbsystem.views.Students2Problem),
 ]

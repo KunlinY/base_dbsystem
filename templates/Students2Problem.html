@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}内容端研发：学生题目情况{% endblock %}
+
+{% block sname %}学生题目情况{% endblock %}
+
+{% block sinfo %}请输入想要查询的练习ID(若需要所有题目的数据，请输入-1){% endblock %}
+
+{% block content %}
+
+<form action="/Students2Problem/" method="post">{% csrf_token %}
+
+<div style="display: flex;">
+
+<div style="margin-right: 10px">
+
+<input value="请在此处输入练习ID" name="exercise_number" type="text" onmouseover="this.style.backgroundColor='#8ED8FC'" 
+
+style="width: 175px; height: 40px" 
+
+onmouseout="this.style.backgroundColor='#ffffff'" style="border-width:1px;border-color=black" onclick="this.value=''">
+
+</div>
+
+<div>
+
+    <input type=submit onclick="st()" class="button blue" value="查询">
+
+    </div>
+
+    <input type=button onclick="javascript:window.location.href='/index'" class="button green" value="返回">   
+
+    <a><input type=button class="button yellow" value="导出"></a> 
+
+    </div>
+
+</form>
+
+<div style="max-height:425px;overflow-y:scroll">
+
+<table class="bordered">
+
+  <thead>
+
+    <tr>
+
+      <th>学生ID</th>
+
+      <th>学生姓名</th>
+
+      <th>题目ID</th>
+
+      <th>练习时间</th>
+
+      <th>题目章节</th>
+
+      <th>题目所含标签</th>
+
+      <th>是否完成</th>
+
+      <th>是否正确</th>
+
+      <th>题目正确率</th>
+
+    </tr>
+
+  </thead>
+
+  <tbody id="tablelsw">
+
+{% for i in posts %}
+
+<tr>
+
+    {% for j in i %}
+
+    	<td>{{j}}</td>
+
+    {% endfor %}
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}
+
+{% block filename %}a.download = "学生完成题目列表.xls";{% endblock %}
