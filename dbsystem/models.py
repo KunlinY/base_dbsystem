@@ -18,11 +18,12 @@ class Book(Document):
     subject = fields.ReferenceField(Subject)
 
 
-class Topic(Document):
+class Chapter(Document):
     _id = fields.ObjectIdField()
     name = fields.StringField()
     book = fields.ReferenceField(Book)
-    sub = fields.ListField(ReferenceField('Topic'))
+    sub = fields.ListField(ReferenceField('Chapter'))
+
 
 
 class School(Document):
@@ -30,7 +31,7 @@ class School(Document):
     name = fields.StringField()
     area_code = fields.StringField()
     affiliation = fields.StringField()
-    property = fields.StringField()
+    types = fields.StringField()
     rank = fields.IntField()
     description = fields.StringField()
     register = fields.StringField()
@@ -42,7 +43,6 @@ class Group(Document):
     rank = fields.IntField()
     year = fields.DateField()
     school = fields.ReferenceField(School)
-    sub = fields.ListField(ReferenceField('Group'))
 
 
 class Folder(Document):
@@ -60,9 +60,7 @@ class People(Document):
     sexuality = fields.StringField()
     school = fields.ReferenceField(School)
     group = fields.ListField(ReferenceField(Group))
-    subject = fields.ListField(ReferenceField(Subject))
     year = fields.DateField()
-    position = fields.StringField()
     types = fields.StringField()
     email = fields.EmailField()
     password = fields.StringField()
@@ -70,7 +68,8 @@ class People(Document):
 
 
 class Teacher(Document):
-    pass
+    position = fields.StringField()
+    subject = fields.ListField(ReferenceField(Subject))
 
 
 class Student(Document):
