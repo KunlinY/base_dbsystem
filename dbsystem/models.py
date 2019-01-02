@@ -22,15 +22,14 @@ class Chapter(Document):
     _id = fields.ObjectIdField()
     name = fields.StringField()
     book = fields.ReferenceField(Book)
-    sub = fields.ListField(ReferenceField('Chapter'))
-
+    sub = fields.ListField(fields.ReferenceField('Chapter'))
 
 
 class School(Document):
     _id = fields.ObjectIdField()
     name = fields.StringField()
     area_code = fields.StringField()
-    affiliation = fields.StringField()
+    administrator = fields.StringField()
     types = fields.StringField()
     rank = fields.IntField()
     description = fields.StringField()
@@ -48,9 +47,9 @@ class Group(Document):
 class Folder(Document):
     _id = fields.ObjectIdField()
     name = fields.StringField()
-    sub = fields.ListField(ReferenceField('Folder'))
-    problems = fields.ListField(ReferenceField('Problem'))
-    exercises = fields.ListField(ReferenceField('Exercise'))
+    sub = fields.ListField(fields.ReferenceField('Folder'))
+    problems = fields.ListField(fields.ReferenceField('Problem'))
+    exercises = fields.ListField(fields.ReferenceField('Exercise'))
 
 
 class People(Document):
@@ -59,20 +58,22 @@ class People(Document):
     born = fields.DateField()
     sexuality = fields.StringField()
     school = fields.ReferenceField(School)
-    group = fields.ListField(ReferenceField(Group))
+    group = fields.ListField(fields.ReferenceField(Group))
     year = fields.DateField()
     types = fields.StringField()
     email = fields.EmailField()
     password = fields.StringField()
     favorites = fields.ReferenceField(Folder)
 
+    meta = {'allow_inheritance': True}
 
-class Teacher(Document):
+
+class Teacher(People):
     position = fields.StringField()
-    subject = fields.ListField(ReferenceField(Subject))
+    subject = fields.ListField(fields.ReferenceField(Subject))
 
 
-class Student(Document):
+class Student(People):
     _id = fields.ObjectIdField()
     name = fields.StringField()
     effort = fields.IntField()
@@ -108,13 +109,13 @@ class Exercise(Document):
     _id = fields.ObjectIdField()
     name = fields.StringField()
     types = fields.StringField()
-    problems = fields.ListField(ReferenceField(Problem))
+    problems = fields.ListField(fields.ReferenceField(Problem))
     allow_time = fields.IntField()
     publish_time = fields.DateTimeField()
     aim = fields.StringField()
     publisher = fields.ListField(fields.ReferenceField(People))
     targets = fields.ListField(fields.ReferenceField(Student))
-    subject = ReferenceField(Subject)
+    subject = fields.ReferenceField(Subject)
 
 
 class Tag(Document):
@@ -124,7 +125,7 @@ class Tag(Document):
     types = fields.StringField()
     difficulty = fields.IntField()
     book = fields.ReferenceField(Book)
-    topic = fields.ListField(fields.ListField(fields.ReferenceField(Topic)))
+    topic = fields.ListField(fields.ListField(fields.ReferenceField(Chapter)))
 
 
 class Wrong(Document):
