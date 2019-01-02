@@ -31,13 +31,13 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'dbsystem.apps.DbsystemConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dbsystem',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +55,7 @@ ROOT_URLCONF = 'base_dbsystem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR+"/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,18 +74,18 @@ WSGI_APPLICATION = 'base_dbsystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-import pymysql
-pymysql.install_as_MySQLdb()
+# import pymysql
+# pymysql.install_as_MySQLdb()
 
-DATABASES = {
-    'default':{
-        'ENGINE':'django.db.backends.mysql',
-        'NAME':'dbsystem',
-        'USER':'zypy',
-        'PASSWORD':'111222',
-        'HOST':'localhost',
-    }
-}
+# DATABASES = {
+#     'default':{
+#         'ENGINE':'django.db.backends.mysql',
+#         'NAME':'dbsystem',
+#         'USER':'zypy',
+#         'PASSWORD':'111222',
+#         'HOST':'localhost',
+#     }
+# }
 
 # DATABASES = {
 #     'default': {
@@ -93,6 +93,18 @@ DATABASES = {
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
+MONGODB_DATABASES = {
+        'default': {'name': 'django_mongoengine'}
+}
+
+DATABASES = {
+        'default': {
+            'ENGINE' : None,
+        }
+}
+
+from mongoengine import connect
+connect('dbsystem')
 
 
 # Password validation

@@ -102,6 +102,9 @@ class Problem(Document):
     images = fields.ListField(fields.ImageField())
     formula = fields.ListField(fields.StringField())
     sub = fields.ListField(fields.ReferenceField('Problem'))
+    book = fields.ReferenceField('Book')
+    chapter = fields.ReferenceField('Chapter')
+    tags = fields.ListField(fields.ReferenceField('Tag'))
     solutions = fields.ListField(fields.ReferenceField('Solution'))
 
 
@@ -110,6 +113,7 @@ class Exercise(Document):
     name = fields.StringField()
     types = fields.StringField()
     problems = fields.ListField(fields.ReferenceField(Problem))
+    final_results = fields.ListField(fields.IntField())
     allow_time = fields.IntField()
     publish_time = fields.DateTimeField()
     aim = fields.StringField()
