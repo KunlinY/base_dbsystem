@@ -22,6 +22,7 @@ class Chapter(Document):
     _id = fields.ObjectIdField()
     name = fields.StringField()
     book = fields.ReferenceField(Book)
+    parent = fields.ReferenceField('Chapter')
     sub = fields.ListField(fields.ReferenceField('Chapter'))
 
 
@@ -85,6 +86,7 @@ class Student(People):
     abstraction = fields.IntField()
     imagination = fields.IntField()
     summary = fields.IntField()
+    tagDegree = fields.DictField()
 
 
 class Solution(Document):
@@ -101,6 +103,7 @@ class Problem(Document):
     description = fields.ListField(fields.StringField())
     images = fields.ListField(fields.ImageField())
     formula = fields.ListField(fields.StringField())
+    parent = fields.ReferenceField('Problem')
     sub = fields.ListField(fields.ReferenceField('Problem'))
     book = fields.ReferenceField('Book')
     chapter = fields.ReferenceField('Chapter')
@@ -145,8 +148,12 @@ class ProblemCondition(Document):
     student = fields.ReferenceField(Student)
     problem = fields.ReferenceField(Problem)
     result = fields.StringField()
-    wrong = fields.ListField(fields.StringField())
+    wrongAns = fields.ListField(fields.StringField)
+    wrongType = fields.ReferenceField(Wrong)
     times = fields.IntField()
+    isDone = fields.BooleanField()
+    exercise = fields.ReferenceField(Exercise)
+    exerciseCondition = fields.ReferenceField('ExerciseCondition')
 
 
 class ExerciseCondition(Document):
